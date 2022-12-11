@@ -23,9 +23,10 @@ class Monkey:
 
 
 class Game:
-    def __init__(self, monkeys):
+    def __init__(self, monkeys, boredom_factor=3):
         self.round = 1
         self.monkeys = monkeys
+        self.boredom_factor = boredom_factor
 
     def play_round(self):
         print(f"playing round: {self.round}")
@@ -66,7 +67,7 @@ class Game:
         return sorted_inspections[0] * sorted_inspections[1]
 
 
-def run_part_1():
+def get_monkeys():
     monkey_start = re.compile("Monkey (\d+):")
     starting_items = re.compile("  Starting items: (.+)")
     operation = re.compile("  Operation: new = (old.+)")
@@ -123,8 +124,13 @@ def run_part_1():
 
                 current_monkey = current_items = current_op = current_test = target_true = target_false = None
 
+    return monkeys
 
-        print(monkeys)
+
+
+def run_part_1():
+
+    monkeys = get_monkeys()
 
     game = Game(monkeys)
     for r in range(20):
