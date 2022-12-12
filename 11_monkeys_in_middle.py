@@ -1,4 +1,10 @@
 import re
+import dis
+import operator
+import sys
+import functools
+
+# looks like lcm is a function in 3.9 and higher
 
 class Monkey:
     def __init__(self, number, items, opers, test, if_true, if_false):
@@ -42,7 +48,7 @@ class Game:
             for item in cur_monkey.items:
                 cur_monkey.inspections += 1
                 worry = cur_monkey.opers(item)
-                bored = worry // 3
+                bored = worry // self.boredom_factor
                 the_test = cur_monkey.test(bored)
                 if the_test:
                     target = cur_monkey.if_true
@@ -128,6 +134,17 @@ def get_monkeys():
 
 
 
+def get_argval_from_lambda(lambdafunc):
+    # i is a generator object of disassembly of bytecode
+    # the argval is the second item in the generator
+    i = dis.get_instructions(lambdafunc)
+    next(i)
+    argval = next(i).argval 
+    return argval
+
+
+
+
 def run_part_1():
 
     monkeys = get_monkeys()
@@ -137,14 +154,33 @@ def run_part_1():
         game.play_round()
     
     result = game.show_inspections()
-    print(result)
+    print(f"the answer to part 1 is {result}")
 
+
+def run_part_2():
+    monkeys = get_monkeys()
+
+    allargs = []
+
+    for _, monkey in monkeys.items():
+        argval = get_argval_from_lambda(monkey.test)
+        allargs.append(argval)
+    print(allargs)
+
+    product = functools.reduce(operator.mul, allargs)
+    print(product)
+
+    game = Game(monkeys, product)
+    for r in range(10000):
+        game.play_round()
+
+    result = game.show_inspections()
+    print("part 2 not working yet")
+    print(f"the answer to part 2 is {result}")
 
         
 
 
-def run_part_2():
-    pass
 
 
 if __name__ == "__main__":
