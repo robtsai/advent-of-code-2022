@@ -21,6 +21,19 @@ def move(stack_dict, qty, m_from, m_to):
         counter += 1
     return
 
+def move_mult(stack_dict, qty, m_from, m_to):
+    qty = int(qty)
+    m_from = int(m_from)
+    m_to = int(m_to)
+    print(f"total moves is: {qty}")
+
+    last_n = list(stack_dict[m_from])[-qty:]
+    for _ in range(qty):        
+        stack_dict[m_from].pop()
+    last_n_deque = deque(last_n)
+    stack_dict[m_to] = stack_dict[m_to] + last_n_deque    
+    return
+
 
 def generate_stacks(file):
     stacks = {}
@@ -41,6 +54,7 @@ def generate_stacks(file):
                     else:
                         stacks[indexpos].appendleft(box.group())
                 continue
+    # do we need to handle any empty stacks???
     return stacks
 
 
@@ -78,12 +92,33 @@ def run_part_1(sample_or_real):
     answer = "".join(answer_list)
     print(answer.replace("[","").replace("]",""))
 
-            
+  
 
 
 
 def run_part_2():
-    pass
+    file = os.path.join("input_files", "problem05.txt")
+    stacks = generate_stacks(file)
+    print(stacks)
+    with open(file, "r") as f:
+        for line in f:
+            if instructions.match(line):
+                m_qty = instructions.match(line).group("qty")
+                m_from = instructions.match(line).group("from")
+                m_to = instructions.match(line).group("to")
+                print(f"stack is {stacks}")
+                print(f"moving {m_qty} from {m_from} to {m_to}")
+                move_mult(stacks, m_qty, m_from, m_to)
+    print(f"ending stacks: {stacks}")
+    numkeys = max(stacks.keys())
+    answer_list = []
+    for i in range(1, numkeys+1):
+        answer_list.append(stacks[i].pop())
+    print(answer_list)
+    answer = "".join(answer_list)
+    print(answer.replace("[","").replace("]",""))
+
+    
 
 
 if __name__ == "__main__":
