@@ -1,6 +1,8 @@
 import os
 import copy
 import pprint
+import operator
+from functools import reduce
 
 def get_matrix(data):
     rows = data.split("\n")
@@ -20,13 +22,16 @@ def get_matrix(data):
 
     visible = copy.deepcopy(matrix)
 
+    score = copy.deepcopy(matrix)
+
     # populate matrix, and also set visibible matrix to false
     for i, row in enumerate(rows):
         for j, val in enumerate(row):
             matrix[i][j] = int(val)
             visible[i][j] = False
+            score[i][j] = None
 
-    return matrix, visible, num_rows, num_cols
+    return matrix, visible, num_rows, num_cols, score
 
 
 
@@ -72,6 +77,58 @@ def bottom_to_top(matrix, visible, num_rows, num_cols):
 
 
 
+def count_vis(matrix, i, j, num_rows, num_cols):
+    factors = {
+        "left": 0,
+        "right": 0,
+        "up": 0,
+        "down": 0
+    }
+
+    curval = matrix[i][j]
+
+    left = j-1
+    numleft = 0
+    while left >= 0:
+        numleft += 1
+        if matrix[i][left] >= curval:
+            break
+        left -= 1
+    factors["left"] = numleft
+
+    right = j+1
+    numright = 0
+    while right < num_cols:
+        numright += 1
+        if matrix[i][right] >= curval:
+            break
+        right += 1
+    factors["right"] = numright
+
+    up = i-1
+    numup = 0
+    while up >= 0:
+        numup += 1
+        if matrix[up][j] >= curval:
+            break
+        up -= 1
+    factors["up"] = numup
+
+    down = i+1
+    numdown = 0
+    while down < num_rows:
+        numdown += 1
+        if matrix[down][j] >= curval:
+            break
+        down += 1
+    factors["down"] = numdown
+
+    print(factors)
+    factor_vals = list(factors.values())
+    print(factor_vals)
+    the_score = reduce(operator.mul, factor_vals)
+    print(the_score)
+    return the_score
 
 
 
@@ -88,7 +145,7 @@ def run_part_1(sample_or_real):
     with open(file, "r") as f:
         data = f.read()
 
-    matrix, visible, num_rows, num_cols = get_matrix(data)
+    matrix, visible, num_rows, num_cols, _ = get_matrix(data)
     pp = pprint.PrettyPrinter(indent=4)
     pp.pprint(matrix)
     pp.pprint(visible)
@@ -113,8 +170,37 @@ def run_part_1(sample_or_real):
 
     print(f"the answer to part 1 is {counts}")
 
-def run_part_2():
-    file = os.path.join("input_files", "problem08.txt")
+
+
+
+def run_part_2(sample_or_real):
+    if sample_or_real == "sample":
+        whichfile = "sample08.txt"
+    elif sample_or_real == "real":
+        whichfile = "problem08.txt"
+    else:
+        raise ValueError("invalid func call param - must be real or sample")
+
+    file = os.path.join("input_files", whichfile)
+    with open(file, "r") as f:
+        data = f.read()
+
+    matrix, visible, num_rows, num_cols, score = get_matrix(data)
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(matrix)
+    pp.pprint(score)
+
+
+    highest_score = 0
+
+    for i in range(1, num_rows-1):
+        for j in range(1, num_cols-1):
+            curval = matrix[i][j]
+            the_score = count_vis(matrix, i, j, num_rows, num_cols)
+            highest_score = max(highest_score, the_score)
+
+    print(f"the answer to part 2 is {highest_score}")
+
 
     
 
@@ -130,4 +216,5 @@ if __name__ == "__main__":
         run_part_1("sample")
         run_part_1("real")
     else:
-        run_part_2()
+        run_part_2("sample")
+        run_part_2("real")
