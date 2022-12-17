@@ -22,22 +22,10 @@ def move(stack_dict, qty, m_from, m_to):
     return
 
 
-def run_part_1(sample_or_real):
-    if sample_or_real == "sample":
-        whichfile = "sample05.txt"
-    elif sample_or_real == "real":
-        whichfile = "problem05.txt"
-    else:
-        raise ValueError("invalid func call param - must be real or sample")
-    
-    file = os.path.join("input_files", whichfile)
-
+def generate_stacks(file):
     stacks = {}
-
-
     with open(file, "r") as f:
         count_boxes = True
-
         for line in f:
             if line_with_box_index.match(line):
                 count_boxes = False
@@ -53,7 +41,26 @@ def run_part_1(sample_or_real):
                     else:
                         stacks[indexpos].appendleft(box.group())
                 continue
+    return stacks
 
+
+
+
+def run_part_1(sample_or_real):
+    if sample_or_real == "sample":
+        whichfile = "sample05.txt"
+    elif sample_or_real == "real":
+        whichfile = "problem05.txt"
+    else:
+        raise ValueError("invalid func call param - must be real or sample")
+    
+    file = os.path.join("input_files", whichfile)
+
+
+    stacks = generate_stacks(file)
+
+    with open(file, "r") as f:
+        for line in f:
             if instructions.match(line):
                 m_qty = instructions.match(line).group("qty")
                 m_from = instructions.match(line).group("from")
