@@ -124,7 +124,7 @@ class Traverser:
 
 
 
-def process(data):
+def process(data, part_1_or_2):
     dlist = data.split("\n$")
     dlist = [x.strip() for x in dlist]
     dlist = [ x.split("\n") for x in dlist]
@@ -144,11 +144,29 @@ def process(data):
     print(dfs.sizes)
 
     dirs_less_than_100k = [x for x in dfs.sizes.values() if x <= 100000]
-    print(dirs_less_than_100k)
+    
+    if part_1_or_2 == "part1":
+        print(f"the answer is {sum(dirs_less_than_100k)}")
+        return
 
-    print(f"the answer is {sum(dirs_less_than_100k)}")
+    totalsize = dfs.sizes["/"]
+    print(f"total size is {totalsize}")
 
+    totaldisk = 70000000
+    space_we_need = 30000000
+    max_file_size = totaldisk - space_we_need
 
+    print(max_file_size)
+    min_to_delete = totalsize - max_file_size
+    print(f"min to delete {min_to_delete}")
+
+    s = sorted( [(k,v) for k,v in dfs.sizes.items()], key=lambda x: x[1], reverse=True)
+
+    s_filtered = [(k,v) for k,v in s if v >= min_to_delete]
+    print(s_filtered)
+
+    answer = s_filtered[-1][1]
+    print(f"the answer is {answer}")
 
 
 
@@ -167,13 +185,21 @@ def run_part_1(sample_or_real):
         data = f.read()
 
     print(data)
-    process(data)
+    process(data, "part1")
 
 
 
 
 def run_part_2():
-    pass
+    whichfile = "problem07.txt"
+    file = os.path.join("input_files", whichfile)
+    with open(file, "r") as f:
+        data = f.read()
+
+    print(data)
+    process(data, "part2")
+
+
 
 if __name__ == "__main__":
     while True:
