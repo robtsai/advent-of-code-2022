@@ -93,7 +93,8 @@ class Board:
             which_node = None
             
             if not self.to_consider:
-                raise ValueError("no other nodes to visit")
+                # unable to reach 
+                return math.inf
             # find node to visit next
             for node in self.to_consider:
                 if self.to_consider[node] <= closest:
@@ -113,13 +114,7 @@ class Board:
 
         # end node is in the to_consider with the cost to get there
         print(f"the cost to get to the end node is {self.to_consider[self.end]}")
-
-
-
-
-
-
-
+        return self.to_consider[self.end]
 
 
     def pretty_print(self):
@@ -135,6 +130,43 @@ class Board:
 
 
 
+class BoardWithNewStart(Board):
+    def __init__(self, rows, override_start_point):
+        self.rows = rows
+        self.board = []
+        self.start = override_start_point
+        self.end = (None, None)
+        self.distances = []
+        self._initialize_board()
+        self._initialize_distances()
+        self.elevations = copy.deepcopy(self.board)
+        self.elevations[self.start[0]][self.start[1]] = 'a'
+        self.elevations[self.end[0]][self.end[1]] = 'z'
+        self.visited = set()
+        self.current = self.start
+        self.numrows = len(self.board)
+        self.numcols = len(self.board[0])
+        self.visited.add(self.start)
+        self.to_consider = {}
+        
+
+    def _initialize_board(self):
+        numcols = len(self.rows[0])
+        for i, row in enumerate(self.rows):
+            newrow = []
+            for j, char in enumerate(row):
+                if char == "S":
+                    newrow.append('a')
+                elif char == "E":
+                    self.end = (i, j)
+                    newrow.append(char)
+                else:
+                    newrow.append(char)
+            self.board.append(newrow)
+
+
+
+
 
 
 def run_part_1(sample_or_real):
@@ -145,10 +177,39 @@ def run_part_1(sample_or_real):
     rows = data.split("\n")
     board = Board(rows)
     board.pretty_print()
-    board.run()
+    answer = board.run()
+    print(answer)
 
 
-def run_part_2():
+def run_part_2(sample_or_real):
+    pp = pprint.PrettyPrinter(indent=4)
+    file = os.path.join("input_files", filemap[sample_or_real])
+    with open(file, "r") as f:
+        data = f.read()
+    rows = data.split("\n")
+    orig_board = Board(rows)
+    print(orig_board)
+
+    all_a = []
+    for i in range(orig_board.numrows):
+        for j in range(orig_board.numcols):
+            if orig_board.elevations[i][j] == 'a':
+                all_a.append((i,j))
+
+    answers = []
+    for a in all_a:
+        new_board = BoardWithNewStart(rows, a)
+        answer = new_board.run()
+        answers.append(answer)
+
+    print(answers)
+    print(min(answers))
+
+
+
+
+
+
     pass
 
 
@@ -163,4 +224,5 @@ if __name__ == "__main__":
         run_part_1("sample")
         run_part_1("real")
     else:
-        run_part_2()
+        run_part_2("sample")
+        run_part_2("real")
