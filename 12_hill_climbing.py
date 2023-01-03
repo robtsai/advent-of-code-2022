@@ -20,15 +20,14 @@ class Board:
         self._initialize_board()
         self._initialize_distances()
         self.elevations = copy.deepcopy(self.board)
-        self.elevations[self.start[0]][self.start[1]] = 'a'
-        self.elevations[self.end[0]][self.end[1]] = 'z'
+        self.elevations[self.start[0]][self.start[1]] = "a"
+        self.elevations[self.end[0]][self.end[1]] = "z"
         self.visited = set()
         self.current = self.start
         self.numrows = len(self.board)
         self.numcols = len(self.board[0])
         self.visited.add(self.start)
         self.to_consider = {}
-
 
     def elevation(self):
         return self.elevations[self.current[0]][self.current[1]]
@@ -37,7 +36,6 @@ class Board:
         elevation_a = self.elevations[point_a[0]][point_a[1]]
         elevation_b = self.elevations[point_b[0]][point_b[1]]
         return ord(elevation_a) - ord(elevation_b)
-
 
     def _initialize_board(self):
         numcols = len(self.rows[0])
@@ -61,8 +59,7 @@ class Board:
         self.distances[self.start[0]][self.start[1]] = 0
 
     def adjacent(self):
-        """finds adjacent vertices - adds them to unvisited dict, with cost to get there
-        """
+        """finds adjacent vertices - adds them to unvisited dict, with cost to get there"""
         right = (self.current[0], self.current[1] + 1)
         left = (self.current[0], self.current[1] - 1)
         up = (self.current[0] - 1, self.current[1])
@@ -79,21 +76,21 @@ class Board:
         not_visited = [x for x in filtered_l if not x in self.visited]
         for node in not_visited:
             if self.height_diff(node, self.current) <= 1:
-                self.to_consider[node] = min(self.to_consider.get(node, math.inf), self.distances[self.current[0]][self.current[1]]+1)
-
-
-
+                self.to_consider[node] = min(
+                    self.to_consider.get(node, math.inf),
+                    self.distances[self.current[0]][self.current[1]] + 1,
+                )
 
     def run(self):
         while True:
             # find adjacent nodes and add to to_consider
             self.adjacent()
 
-            closest = math.inf 
+            closest = math.inf
             which_node = None
-            
+
             if not self.to_consider:
-                # unable to reach 
+                # unable to reach
                 return math.inf
             # find node to visit next
             for node in self.to_consider:
@@ -102,7 +99,7 @@ class Board:
                     which_node = node
 
             if which_node == self.end:
-                print('reached the end node')
+                print("reached the end node")
                 break
 
             print(f"visiting this node: {which_node}")
@@ -111,11 +108,9 @@ class Board:
             del self.to_consider[which_node]
             self.current = which_node
 
-
         # end node is in the to_consider with the cost to get there
         print(f"the cost to get to the end node is {self.to_consider[self.end]}")
         return self.to_consider[self.end]
-
 
     def pretty_print(self):
         pp = pprint.PrettyPrinter(indent=4)
@@ -128,8 +123,6 @@ class Board:
         pp.pprint(self.elevations)
 
 
-
-
 class BoardWithNewStart(Board):
     def __init__(self, rows, override_start_point):
         self.rows = rows
@@ -140,15 +133,14 @@ class BoardWithNewStart(Board):
         self._initialize_board()
         self._initialize_distances()
         self.elevations = copy.deepcopy(self.board)
-        self.elevations[self.start[0]][self.start[1]] = 'a'
-        self.elevations[self.end[0]][self.end[1]] = 'z'
+        self.elevations[self.start[0]][self.start[1]] = "a"
+        self.elevations[self.end[0]][self.end[1]] = "z"
         self.visited = set()
         self.current = self.start
         self.numrows = len(self.board)
         self.numcols = len(self.board[0])
         self.visited.add(self.start)
         self.to_consider = {}
-        
 
     def _initialize_board(self):
         numcols = len(self.rows[0])
@@ -156,17 +148,13 @@ class BoardWithNewStart(Board):
             newrow = []
             for j, char in enumerate(row):
                 if char == "S":
-                    newrow.append('a')
+                    newrow.append("a")
                 elif char == "E":
                     self.end = (i, j)
                     newrow.append(char)
                 else:
                     newrow.append(char)
             self.board.append(newrow)
-
-
-
-
 
 
 def run_part_1(sample_or_real):
@@ -193,8 +181,8 @@ def run_part_2(sample_or_real):
     all_a = []
     for i in range(orig_board.numrows):
         for j in range(orig_board.numcols):
-            if orig_board.elevations[i][j] == 'a':
-                all_a.append((i,j))
+            if orig_board.elevations[i][j] == "a":
+                all_a.append((i, j))
 
     answers = []
     for a in all_a:
@@ -205,12 +193,6 @@ def run_part_2(sample_or_real):
     print(answers)
     print(min(answers))
 
-
-
-
-
-
-    pass
 
 
 if __name__ == "__main__":
