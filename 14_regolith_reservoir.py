@@ -206,6 +206,8 @@ class Waterfall:
 
             steps += 1
 
+        print(f"the answer is {steps-1}")
+
 
 
 
