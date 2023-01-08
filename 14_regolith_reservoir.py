@@ -22,15 +22,16 @@ def min_max(line):
 
 
 class Waterfall:
-    def __init__(self, min_x, max_x, max_y, lines):
+    def __init__(self, min_x, max_x, max_y, lines, bottomrocks):
         self.min_x = min_x
         self.max_x = max_x
         self.max_y = max_y
         self.lines = lines
+        self.bottomrocks = bottomrocks
         self.linesp = [self.lines_as_points(line) for line in self.lines]
         self.x_size = max_x - min_x + 1
         self.sands = []
-        self.rocks = self.get_rocks()
+        self.rocks = self.get_rocks(bottomrocks)
         self.blocked = self.rocks
         self.board = self._build_board()
         self.free = self.get_free()
@@ -109,7 +110,7 @@ class Waterfall:
                     points.append(p)
         return points
 
-    def get_rocks(self):
+    def get_rocks(self, bottomrocks):
         rocks = set()
         for linep in self.linesp:
             index = 0
@@ -117,6 +118,11 @@ class Waterfall:
                 points = self.fill_points(linep[index], linep[index + 1])
                 rocks.update(points)
                 index += 1
+
+        if self.bottomrocks:
+            for i in range(self.min_x, self.max_x+1):
+                rock = Point(i, self.max_y)
+                rocks.add(rock)
         return rocks
 
     def x_offset(self, x):
@@ -198,8 +204,12 @@ class Waterfall:
                 break
             print(f"sand reached {sand} on step {steps}")
             self.sands.append(sand)
-            self.free.remove(sand)
             self.blocked.add(sand)
+            if Point(500, 0) in self.blocked:
+                print("the 500, 0 entry point is blocked. breaking")
+                steps += 1
+                break
+            self.free.remove(sand)
             self._update_board(sand)
             if sample_or_real == "sample":
                 self.print_board()
@@ -207,6 +217,17 @@ class Waterfall:
             steps += 1
 
         print(f"the answer is {steps-1}")
+
+
+
+class Waterfall2(Waterfall):
+    def __init__(self, min_x, max_x, max_y, lines, bottomrocks):
+        newmax_y = max_y + 2
+        newmin_x = 500 - newmax_y -2
+        newmax_x = 500 + newmax_y + 2
+        super().__init__(newmin_x, newmax_x, newmax_y, lines, bottomrocks)
+
+
 
 
 
@@ -228,16 +249,35 @@ def run_part_1(sample_or_real):
         max_y = max(max_y, maxy)
 
     print(min_x, max_x, max_y)
-    w = Waterfall(min_x, max_x, max_y, lines)
+    # bottomrocks is last param
+    w = Waterfall(min_x, max_x, max_y, lines, False)
     if sample_or_real == "sample":
         w.print_board()
     w.simulate(sample_or_real)
 
 
 def run_part_2(sample_or_real):
-    with open(file, "r") as f:
+    file = filemap[sample_or_real]
+    with open(os.path.join("input_files", file), "r") as f:
         data = f.read()
-    print(data)
+
+    lines = data.split("\n")
+    min_x = math.inf
+    max_x = -math.inf
+    max_y = -math.inf
+    for line in lines:
+        minx, maxx, maxy = min_max(line)
+        min_x = min(min_x, minx)
+        max_x = max(max_x, maxx)
+        max_y = max(max_y, maxy)
+
+    print(min_x, max_x, max_y)
+    w = Waterfall2(min_x, max_x, max_y, lines, True)
+    if sample_or_real == "sample":
+        w.print_board()
+    w.simulate(sample_or_real)
+
+
 
 
 if __name__ == "__main__":
@@ -252,4 +292,4 @@ if __name__ == "__main__":
         run_part_1("real")
     else:
         run_part_2("sample")
-        # run_part_2("real")
+        run_part_2("real")
